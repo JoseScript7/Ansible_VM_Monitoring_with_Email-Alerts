@@ -1,0 +1,124 @@
+---
+# health_check_email.yml
+# Simple playbook to check VM health and send email
+
+- name: Check Health of All VMs
+  hosts: all
+  become: true
+
+  tasks:
+    # Task 1: Copy and run health check script
+    - name: Run health check script
+      shell: |
+        #!/bin/bash
+        echo "========================================="
+        echo "HEALTH REPORT FOR: $(hostname)"
+        echo "Date: $(date)"
+        echo "========================================="
+        echo -n "System Uptime: "
+        uptime -p
+        echo -n "CPU Cores: "
+        nproc
+        echo -n "Memory Usage: "
+        free -h | grep Mem | awk '{print $3 " / " $2 " (Available: " $4 ")"}'
+        echo -n "Disk Space: "
+        df -h | grep ' /$' | awk '{print $5 " used (Available: " $4 ")"}'
+        echo -n "Active Processes: "
+        ps -ef | wc -l
+        echo -n "Current Users: "
+        who | wc -l
+        echo "Network Activity:"
+        echo -n "  Active Connections: "
+        ss -tuln | grep -c LISTEN
+        echo "========================================="
+        echo ""
+      register: vm_health
+
+    # Task 2: Save each VM report locally
+    - name: Save individual VM reports
+      copy:
+        content: "{{ vm_health.stdout }}"
+        dest: "/tmp/health_{{ inventory_hostname }}.txt"
+      delegate_to: localhost
+
+# Send Email Report
+- name: Email All Reports
+  hosts: localhost
+  gather_facts: yes
+
+  vars:
+    # CHANGE THESE VALUES
+    gmail_user: "ranenjoseph@gmail.com"
+    gmail_app_password: "vtra dblu ijva fzxb"
+    send_to: "ranenjosephsolomon.student@saveetha.ac.in"
+
+  tasks:
+    # Task 3: Combine all reports
+    - name: Create combined report
+      shell: |
+        echo "=============================================" > /tmp/final_report.txt
+        echo "VM HEALTH CHECK REPORT" >> /tmp/final_report.txt
+        echo "Generated: $(date)" >> /tmp/final_report.txt
+        echo "Total VMs Checked: $(ls /tmp/health_*.txt | wc -l)" >> /tmp/final_report.txt
+        echo "=============================================" >> /tmp/final_report.txt
+        echo "" >> /tmp/final_report.txt
+        cat /tmp/health_*.txt >> /tmp/final_report.txt
+
+    # Task 4: Send email using Python
+    - name: Send email with report
+      shell: |
+        python3 << 'EOF'
+        import smtplib
+        from email.mime.text import MIMEText
+        from email.mime.multipart import MIMEMultipart
+        from datetime import datetime
+
+        # Read the report
+        with open('/tmp/final_report.txt', 'r') as f:
+            report_content = f.read()
+
+        # Email settings
+        sender = "{{ gmail_user }}"
+        password = "{{ gmail_app_password }}"
+        receiver = "{{ send_to }}"
+
+        # Create email
+        msg = MIMEMultipart()
+        msg['From'] = sender
+        msg['To'] = receiver
+        msg['Subject'] = f"VM Health Report - {datetime.now().strftime('%Y-%m-%d %H:%M')}"
+
+        # Email body
+        body = f"""
+        Hello,
+
+        Please find the health check report for all virtual machines below:
+
+        {report_content}
+
+        ---
+        This is an automated report from Ansible.
+        """
+
+        msg.attach(MIMEText(body, 'plain'))
+
+        # Send email
+        try:
+            server = smtplib.SMTP('smtp.gmail.com', 587)
+            server.starttls()
+            server.login(sender, password)
+            server.send_message(msg)
+            server.quit()
+            print("✓ Email sent successfully!")
+        except Exception as e:
+            print(f"✗ Error sending email: {e}")
+        EOF
+      register: email_result
+
+    - name: Show email status
+      debug:
+        msg: "{{ email_result.stdout }}"
+
+    - name: Show report location
+      debug:
+        msg: "Report also saved at: /tmp/final_report.txt"
