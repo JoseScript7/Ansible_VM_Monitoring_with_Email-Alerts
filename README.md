@@ -176,7 +176,8 @@ The playbook consists of two main plays that work together to monitor VMs and se
 
 ## Playbook Execution Flow
 
-<img width="3258" height="2628" alt="image" src="https://github.com/user-attachments/assets/63b7eb76-094e-4cc5-b2a8-42907a838311" />
+<img width="824" height="785" alt="dPFVQzim4CVVzLVSs4iBYxiasnZEIxCaQs7DA7ReKo0eyiKMaKz6EgVpnlxtINOxMWQZr621xyTzlbznllGi7RUr4MyAF6X2o5QBpVpxrSqAb97U2t_Kr4WdQ_2LBEozfX8EqdXyad6eM59f47u92CyNgOwbioqL2skiWxVpvVBpwjEGiwv0DyJt9XJsqQ-MEDS_4SOJyLk8NfL8yyqysw" src="https://github.com/user-attachments/assets/486e2385-847b-4c5c-b0e7-3bcd31029ab5" />
+
 
 
 ## SSH Connection Setup
