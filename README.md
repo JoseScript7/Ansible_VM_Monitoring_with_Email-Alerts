@@ -75,7 +75,8 @@ ansible-playbook -i inventory.ini health_check_email.yml
 
 ## Ansible Playbook Written:
 
-<img width="1920" height="1200" alt="image" src="https://github.com/user-attachments/assets/510b634f-4d15-4e92-ac27-862709c427f0" />
+<img width="1920" height="1200" alt="Screenshot (40)" src="https://github.com/user-attachments/assets/412b97a1-72e2-4d2d-9ded-47b28629adce" />
+
 
 <img width="1920" height="1200" alt="image" src="https://github.com/user-attachments/assets/f4786ad1-9023-4260-90f8-6694aba891da" />
 
