@@ -48,9 +48,9 @@
 
   vars:
     # CHANGE THESE VALUES
-    gmail_user: "ranenjoseph@gmail.com"
-    gmail_app_password: "vtra dblu ijva fzxb"
-    send_to: "ranenjosephsolomon.student@saveetha.ac.in"
+    gmail_user: "your@gmail.com"
+    gmail_app_password: "abcd efgh izde fewe"
+    send_to: "example@gmail.com"
 
   tasks:
     # Task 3: Combine all reports
